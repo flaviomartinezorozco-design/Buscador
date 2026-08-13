@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscador de Inventario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4 text-gray-800">Buscador de Inventario</h1>
+        <input type="text" id="search" placeholder="Buscar por código, descripción o proveedor..." class="w-full p-3 border rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; // Paste your deployment URL here
+        let inventory = [];
+
+        async function loadData() {
+            const res = await fetch(WEB_APP_URL);
+            inventory = await res.json();
+        }
+        loadData();
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (query.length < 2) return;
+
+            const filtered = inventory.filter(item => 
+                (item.DESCRIPCION && item.DESCRIPCION.toLowerCase().includes(query)) ||
+                (item.CODIGO && item.CODIGO.toLowerCase().includes(query)) ||
+                (item.PROVEEDOR && item.PROVEEDOR.toLowerCase().includes(query))
+            ).slice(0, 20); // Limit to 20 results for performance
+
+            filtered.forEach(item => {
+                resultsDiv.innerHTML += `
+                    <div class="border p-4 rounded-lg flex gap-4 items-center bg-gray-50">
+                        <div class="flex-1">
+                            <p class="font-bold text-lg">${item.DESCRIPCION || 'Sin descripción'}</p>
+                            <p class="text-sm text-gray-600">Código: ${item.CODIGO || 'N/A'}</p>
+                            <p class="text-sm text-gray-600">Precio: $${item.PRECIO_FINAL || '0.00'}</p>
+                            <p class="text-sm text-blue-600 font-semibold">Stock: ${item.EXISTENCIAS || 0}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
