@@ -8,14 +8,14 @@
 <body class="bg-gray-100 p-6">
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
         <h1 class="text-2xl font-bold mb-4 text-gray-800">Buscador de Inventario</h1>
-        <input type="text" id="search" placeholder="Buscar por código, descripción o proveedor..." class="w-full p-3 border rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" id="search" placeholder="Escribe para buscar por código, descripción o proveedor..." class="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <p id="status" class="text-sm text-gray-500 mb-4">Cargando inventario...</p>
         
         <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
     <script>
-        // PASTE ONLY YOUR APPS SCRIPT ID HERE (the long random string between /s/ and /exec in your URL)
-        const SCRIPT_ID = "AKfycbz6GWOGf2lpwUEuMiQdnkj-7vSyOSFzFu518bxURYfstowEXQ4zSdb-9IVCYVOXlhYKwA";
+        const SCRIPT_ID = "AKfycbz6GWOGf2lpwUEuMiQdnkj-7vSyOSFzFu518bxURYfstowEXQ4zSdb-9IVCYVOXlhYKwA"; // Keep your script ID here
         const WEB_APP_URL = "https://script.google.com/macros/s/" + SCRIPT_ID + "/exec";
         
         let inventory = [];
@@ -24,34 +24,44 @@
             try {
                 const res = await fetch(WEB_APP_URL);
                 inventory = await res.json();
-                console.log("Inventario cargado exitosamente:", inventory.length, "items");
+                document.getElementById('status').innerText = `Inventario listo: ${inventory.length} productos cargados.`;
             } catch (err) {
-                console.error("Error al cargar los datos:", err);
+                document.getElementById('status').innerText = "Error al cargar los datos del inventario.";
+                console.error(err);
             }
         }
         loadData();
 
         document.getElementById('search').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
+            const query = e.target.value.toLowerCase().trim();
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
 
             if (query.length < 2) return;
 
-            const filtered = inventory.filter(item => 
-                (item.DESCRIPCION && item.DESCRIPCION.toLowerCase().includes(query)) ||
-                (item.CODIGO && item.CODIGO.toLowerCase().includes(query)) ||
-                (item.PROVEEDOR && item.PROVEEDOR.toLowerCase().includes(query))
-            ).slice(0, 20);
+            const filtered = inventory.filter(item => {
+                const desc = item.DESCRIPCION ? String(item.DESCRIPCION).toLowerCase() : '';
+                const code = item.CODIGO ? String(item.CODIGO).toLowerCase() : '';
+                const prov = item.PROVEEDOR ? String(item.PROVEEDOR).toLowerCase() : '';
+                return desc.includes(query) || code.includes(query) || prov.includes(query);
+            }).slice(0, 20);
+
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = '<p class="text-gray-500 col-span-2">No se encontraron productos.</p>';
+                return;
+            }
 
             filtered.forEach(item => {
                 resultsDiv.innerHTML += `
-                    <div class="border p-4 rounded-lg flex gap-4 items-center bg-gray-50">
-                        <div class="flex-1">
-                            <p class="font-bold text-lg">${item.DESCRIPCION || 'Sin descripción'}</p>
-                            <p class="text-sm text-gray-600">Código: ${item.CODIGO || 'N/A'}</p>
-                            <p class="text-sm text-gray-600">Precio: $${item.PRECIO_FINAL || '0.00'}</p>
-                            <p class="text-sm text-blue-600 font-semibold">Stock: ${item.EXISTENCIAS || 0}</p>
+                    <div class="border p-4 rounded-lg flex flex-col justify-between bg-gray-50 shadow-sm">
+                        <div>
+                            <p class="font-bold text-lg text-gray-800">${item.DESCRIPCION || 'Sin descripción'}</p>
+                            <p class="text-sm text-gray-600 mt-1">Código: <span class="font-semibold">${item.CODIGO || 'N/A'}</span></p>
+                            <p class="text-sm text-gray-600">Proveedor: ${item.PROVEEDOR || 'N/A'}</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center border-t pt-2">
+                            <span class="text-lg font-bold text-green-600">$${item['PRECIO FINAL'] || '0.00'}</span>
+                            <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">Stock: ${item.EXISTENCIAS || 0}</span>
                         </div>
                     </div>
                 `;
