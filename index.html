@@ -14,13 +14,20 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz6GWOGf2lpwUEuMiQdnkj-7vSyOSFzFu518bxURYfstowEXQ4zSdb-9IVCYVOXlhYKwA/exec
-";
+        // PASTE ONLY YOUR APPS SCRIPT ID HERE (the long random string between /s/ and /exec in your URL)
+        const SCRIPT_ID = "AKfycbz6GWOGf2lpwUEuMiQdnkj-7vSyOSFzFu518bxURYfstowEXQ4zSdb-9IVCYVOXlhYKwA";
+        const WEB_APP_URL = "https://script.google.com/macros/s/" + SCRIPT_ID + "/exec";
+        
         let inventory = [];
 
         async function loadData() {
-            const res = await fetch(WEB_APP_URL);
-            inventory = await res.json();
+            try {
+                const res = await fetch(WEB_APP_URL);
+                inventory = await res.json();
+                console.log("Inventario cargado exitosamente:", inventory.length, "items");
+            } catch (err) {
+                console.error("Error al cargar los datos:", err);
+            }
         }
         loadData();
 
