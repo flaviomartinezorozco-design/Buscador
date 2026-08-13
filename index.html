@@ -12,12 +12,15 @@
         
         <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
-
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz6GWOGf2lpwUEuMiQdnkj-7vSyOSFzFu518bxURYfstowEXQ4zSdb-9IVCYVOXlhYKwA/exec
-"; // Paste your deployment URL here
+<script>
+        const WEB_APP_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE"; 
         let inventory = [];
 
+        async function loadData() {
+            const res = await fetch(WEB_APP_URL);
+            inventory = await res.json();
+        }
+        loadData();
         async function loadData() {
             const res = await fetch(WEB_APP_URL);
             inventory = await res.json();
