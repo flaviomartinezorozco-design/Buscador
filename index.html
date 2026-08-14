@@ -16,14 +16,14 @@
             </div>
         </div>
 
-        <input type="text" id="search" placeholder="AKfycbz6GWOGf2lpwUEuMiQdnkj-7vSyOSFzFu518bxURYfstowEXQ4zSdb-9IVCYVOXlhYKwA" class="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <input type="text" id="search" placeholder="Escribe para buscar por código, código interno o descripción..." class="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500">
         <p id="status" class="text-sm text-gray-500 mb-4">Cargando inventario...</p>
         
         <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
     <script>
-        const SCRIPT_ID = "PASTE_YOUR_ID_HERE"; // Keep your existing script ID here
+        const SCRIPT_ID = "PASTE_YOUR_ID_HERE"; // Keep your script ID here
         const WEB_APP_URL = "https://script.google.com/macros/s/" + SCRIPT_ID + "/exec";
         
         let inventory = [];
@@ -62,14 +62,14 @@
             filtered.forEach(item => {
                 resultsDiv.innerHTML += `
                     <div class="border p-4 rounded-lg flex flex-col justify-between bg-gray-50 shadow-sm">
-                        <div class="h-40 bg-gray-200 mb-3 flex items-center justify-center overflow-hidden rounded">
-                            ${item.FOTO_URL ? `<img src="${item.FOTO_URL}" class="object-cover h-full w-full">` : '<span class="text-gray-400 text-sm">Sin foto</span>'}
+                        <div class="h-48 bg-gray-200 mb-3 flex items-center justify-center overflow-hidden rounded">
+                            ${item.FOTO_URL ? `<img src="${item.FOTO_URL}" class="object-contain h-full w-full">` : '<span class="text-gray-400 text-sm">Sin foto</span>'}
                         </div>
                         <div>
                             <p class="font-bold text-lg text-gray-800">${item.DESCRIPCION || 'Sin descripción'}</p>
                             <div class="flex gap-4 mt-1 text-sm text-gray-600">
                                 <p>Código: <span class="font-semibold text-gray-800">${item.CODIGO || 'N/A'}</span></p>
-                                <p>Int: <span class="font-semibold text-gray-800">${item['CODIGO INTERNO'] || 'N/A'}</span></p>
+                                <p>Cód. Interno: <span class="font-semibold text-gray-800">${item['CODIGO INTERNO'] || 'N/A'}</span></p>
                             </div>
                         </div>
                         <div class="mt-4 flex justify-between items-center border-t pt-2">
