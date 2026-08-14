@@ -2,80 +2,82 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buscador de Inventario - Accesorios Azteca</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+<body class="bg-gray-100 p-3 sm:p-6">
+    <div class="max-w-4xl mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-md border-t-4 border-red-600">
         <!-- Logo Header -->
-        <div class="flex items-center gap-4 mb-6 border-b pb-4">
-            <img src="image.jpg" alt="Accesorios Azteca" class="h-14 object-contain">
+        <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 border-b pb-3 sm:pb-4">
+            <img src="image.jpg" alt="Accesorios Azteca" class="h-10 sm:h-14 object-contain">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Buscador de Inventario</h1>
-                <p class="text-sm text-gray-500">Sistema de consulta interna</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Buscador de Inventario</h1>
+                <p class="text-xs sm:text-sm text-gray-500">Sistema de consulta interna</p>
             </div>
         </div>
 
-        <input type="text" id="search" placeholder="Escribe para buscar por código, código interno o descripción..." class="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-red-500">
-        <p id="status" class="text-sm text-gray-500 mb-4">Cargando inventario...</p>
+        <input type="text" id="search" placeholder="Escribe al menos 2 letras para buscar..." class="w-full p-3 text-sm sm:text-base border rounded-lg mb-3 sm:mb-4 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <p id="status" class="text-xs sm:text-sm text-gray-500 mb-4">Escribe en el buscador para consultar el inventario.</p>
         
         <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
     <script>
-        const SCRIPT_ID = "AKfycbwhLgpz1UzWSKpIu74Nixb_Khp64ZRna4ENmbe-GqAtz-jj_ursZwZQWQM2QKXk5Y9O-Q";
-        const WEB_APP_URL = "https://script.google.com/macros/s/" + SCRIPT_ID + "/exec";
-        
-        let inventory = [];
-
-        async function loadData() {
-            try {
-                const res = await fetch(WEB_APP_URL);
-                inventory = await res.json();
-                document.getElementById('status').innerText = `Inventario listo: ${inventory.length} productos cargados.`;
-            } catch (err) {
-                document.getElementById('status').innerText = "Error al cargar los datos del inventario.";
-                console.error(err);
-            }
-        }
-        loadData();
+        const WEB_APP_URL = "YOUR_NEW_WEB_APP_URL_HERE";
+        let debounceTimer;
 
         document.getElementById('search').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
+            const query = e.target.value.trim();
             const resultsDiv = document.getElementById('results');
+            const status = document.getElementById('status');
+            
             resultsDiv.innerHTML = '';
 
-            if (query.length < 2) return;
-
-            const filtered = inventory.filter(item => {
-                const desc = item.DESCRIPCION ? String(item.DESCRIPCION).toLowerCase() : '';
-                const code = item.CODIGO ? String(item.CODIGO).toLowerCase() : '';
-                const internalCode = item['CODIGO INTERNO'] ? String(item['CODIGO INTERNO']).toLowerCase() : '';
-                return desc.includes(query) || code.includes(query) || internalCode.includes(query);
-            }).slice(0, 20);
-
-            if (filtered.length === 0) {
-                resultsDiv.innerHTML = '<p class="text-gray-500 col-span-2">No se encontraron productos.</p>';
+            if (query.length < 2) {
+                status.innerText = "Escribe al menos 2 letras para buscar.";
                 return;
             }
 
-            filtered.forEach(item => {
-                resultsDiv.innerHTML += `
-                    <div class="border p-4 rounded-lg flex flex-col justify-between bg-gray-50 shadow-sm">
-                        <div>
-                            <p class="font-bold text-lg text-gray-800">${item.DESCRIPCION || 'Sin descripción'}</p>
-                            <div class="flex gap-4 mt-1 text-sm text-gray-600">
-                                <p>Código: <span class="font-semibold text-gray-800">${item.CODIGO || 'N/A'}</span></p>
-                                <p>Cód. Interno: <span class="font-semibold text-gray-800">${item['CODIGO INTERNO'] || 'N/A'}</span></p>
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                status.innerText = "Buscando...";
+                try {
+                    const res = await fetch(`${WEB_APP_URL}?q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    
+                    status.innerText = `Resultados encontrados: ${data.length}`;
+                    
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = '<p class="text-gray-500 col-span-2 text-center py-4">No se encontraron productos.</p>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        resultsDiv.innerHTML += `
+                            <div class="border p-3 sm:p-4 rounded-lg flex flex-col justify-between bg-gray-50 shadow-sm">
+                                <div class="h-40 sm:h-48 bg-gray-200 mb-3 flex items-center justify-center overflow-hidden rounded">
+                                    ${item.FOTO_URL ? `<img src="${item.FOTO_URL}" class="object-contain h-full w-full">` : '<span class="text-gray-400 text-sm">Sin foto</span>'}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-base sm:text-lg text-gray-800">${item.DESCRIPCION || 'Sin descripción'}</p>
+                                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs sm:text-sm text-gray-600">
+                                        <p>Código: <span class="font-semibold text-gray-800">${item.CODIGO || 'N/A'}</span></p>
+                                        <p>Cód. Interno: <span class="font-semibold text-gray-800">${item['CODIGO INTERNO'] || 'N/A'}</span></p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex justify-between items-center border-t pt-2">
+                                    <span class="text-base sm:text-lg font-bold text-red-600">$${item['PRECIO FINAL'] || '0.00'}</span>
+                                    <span class="text-xs sm:text-sm bg-gray-200 text-gray-800 px-2 py-1 rounded font-semibold">Stock: ${item['EXISTENCIA REAL'] || '0'}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-4 flex justify-between items-center border-t pt-2">
-                            <span class="text-lg font-bold text-red-600">$${item['PRECIO FINAL'] || '0.00'}</span>
-                            <span class="text-sm bg-gray-200 text-gray-800 px-2 py-1 rounded font-semibold">Stock Real: ${item['EXISTENCIA REAL'] !== undefined && item['EXISTENCIA REAL'] !== '' ? item['EXISTENCIA REAL'] : '0'}</span>
-                        </div>
-                    </div>
-                `;
-            });
+                        `;
+                    });
+                } catch (err) {
+                    status.innerText = "Error al buscar datos.";
+                    console.error(err);
+                }
+            }, 300);
         });
     </script>
 </body>
