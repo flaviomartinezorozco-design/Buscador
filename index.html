@@ -79,12 +79,14 @@
             const filtered = inventory.filter(item => {
                 const desc = item.DESCRIPCION ? String(item.DESCRIPCION).toLowerCase().trim() : '';
                 const code = item.CODIGO ? String(item.CODIGO).toLowerCase().trim() : '';
-                const intCode = item['CODIGO INTERNO'] ? String(item['CODIGO INTERNO']).toLowerCase().trim() : '';
+                
+                const intCode1 = item['CODIGO INTERNO'] ? String(item['CODIGO INTERNO']).toLowerCase().trim() : '';
+                const intCode2 = item['CODIGO_INTERNO'] ? String(item['CODIGO_INTERNO']).toLowerCase().trim() : '';
                 
                 const queryWords = query.split(/\s+/);
                 
                 return queryWords.every(word => 
-                    desc.includes(word) || code.includes(word) || intCode.includes(word)
+                    desc.includes(word) || code.includes(word) || intCode1.includes(word) || intCode2.includes(word)
                 );
             }).slice(0, 20);
 
@@ -96,6 +98,7 @@
             }
 
             filtered.forEach(item => {
+                const internalCodeVal = item['CODIGO INTERNO'] || item['CODIGO_INTERNO'] || 'N/A';
                 resultsDiv.innerHTML += `
                     <div class="border p-3 sm:p-4 rounded-lg flex flex-col justify-between bg-gray-50 shadow-sm">
                         <div class="h-40 sm:h-48 bg-gray-200 mb-3 flex items-center justify-center overflow-hidden rounded">
@@ -105,7 +108,7 @@
                             <p class="font-bold text-base sm:text-lg text-gray-800">${item.DESCRIPCION || 'Sin descripción'}</p>
                             <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs sm:text-sm text-gray-600">
                                 <p>Código: <span class="font-semibold text-gray-800">${item.CODIGO || 'N/A'}</span></p>
-                                <p>Cód. Interno: <span class="font-semibold text-gray-800">${item['CODIGO INTERNO'] || 'N/A'}</span></p>
+                                <p>Cód. Interno: <span class="font-semibold text-gray-800">${internalCodeVal}</span></p>
                             </div>
                         </div>
                         <div class="mt-4 flex justify-between items-center border-t pt-2">
