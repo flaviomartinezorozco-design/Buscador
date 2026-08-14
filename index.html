@@ -24,26 +24,30 @@
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzxBmQsndxN2FGeh2PS-bHQ7h7daZ0bdXQzvtQZV5_N0Oo-isFm4NDSvRglDBCj_FJZDA/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbysgQZsOrTj86Hkyl19YxSDUTSh47-3_rzV596DzmRA5xDtvqF64ek26NrSeaCJN1PZjA/exec";
         let inventory = [];
 
         async function init() {
             const status = document.getElementById('status');
             const searchInput = document.getElementById('search');
             
-            // Check if we already have it cached locally
             const cached = localStorage.getItem('inventory_cache');
             if (cached) {
-                inventory = JSON.parse(cached);
-                status.innerText = `Inventario listo (${inventory.length} productos - Caché). ¡Ya puedes buscar!`;
-                searchInput.disabled = false;
-                
-                // Fetch fresh data silently in the background
-                fetch(WEB_APP_URL).then(res => res.json()).then(data => {
-                    inventory = data;
-                    localStorage.setItem('inventory_cache', JSON.stringify(data));
-                }).catch(() => {});
-                return;
+                try {
+                    inventory = JSON.parse(cached);
+                    status.innerText = `Inventario listo (${inventory.length} productos - Caché). ¡Ya puedes buscar!`;
+                    searchInput.disabled = false;
+                    
+                    fetch(WEB_APP_URL).then(res => res.json()).then(data => {
+                        if (Array.isArray(data)) {
+                            inventory = data;
+                            localStorage.setItem('inventory_cache', JSON.stringify(data));
+                        }
+                    }).catch(() => {});
+                    return;
+                } catch (e) {
+                    localStorage.removeItem('inventory_cache');
+                }
             }
 
             try {
