@@ -31,14 +31,13 @@
             const status = document.getElementById('status');
             const searchInput = document.getElementById('search');
             
-            // Clear old cache to ensure the new fields load properly
-            localStorage.removeItem('inventory_cache');
+            // Clear broken localStorage cache to prevent quota errors
+            try { localStorage.removeItem('inventory_cache'); } catch(e) {}
 
             try {
-                status.innerText = "Descargando inventario actualizado...";
+                status.innerText = "Descargando inventario...";
                 const res = await fetch(WEB_APP_URL);
                 inventory = await res.json();
-                localStorage.setItem('inventory_cache', JSON.stringify(inventory));
                 status.innerText = `Inventario listo (${inventory.length} productos). ¡Ya puedes buscar!`;
                 searchInput.disabled = false;
             } catch (err) {
