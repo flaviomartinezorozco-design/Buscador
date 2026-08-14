@@ -31,7 +31,7 @@
             const status = document.getElementById('status');
             const searchInput = document.getElementById('search');
             try {
-                const res = await fetch(https://script.google.com/macros/s/AKfycbysgQZsOrTj86Hkyl19YxSDUTSh47-3_rzV596DzmRA5xDtvqF64ek26NrSeaCJN1PZjA/exec);
+                const res = await fetch(WEB_APP_URL);
                 inventory = await res.json();
                 status.innerText = `Inventario listo (${inventory.length} productos). ¡Ya puedes buscar!`;
                 searchInput.disabled = false;
