@@ -31,27 +31,11 @@
             const status = document.getElementById('status');
             const searchInput = document.getElementById('search');
             
-            const cached = localStorage.getItem('inventory_cache');
-            if (cached) {
-                try {
-                    inventory = JSON.parse(cached);
-                    status.innerText = `Inventario listo (${inventory.length} productos - Caché). ¡Ya puedes buscar!`;
-                    searchInput.disabled = false;
-                    
-                    fetch(WEB_APP_URL).then(res => res.json()).then(data => {
-                        if (Array.isArray(data)) {
-                            inventory = data;
-                            localStorage.setItem('inventory_cache', JSON.stringify(data));
-                        }
-                    }).catch(() => {});
-                    return;
-                } catch (e) {
-                    localStorage.removeItem('inventory_cache');
-                }
-            }
+            // Clear old cache to ensure the new fields load properly
+            localStorage.removeItem('inventory_cache');
 
             try {
-                status.innerText = "Descargando inventario por primera vez...";
+                status.innerText = "Descargando inventario actualizado...";
                 const res = await fetch(WEB_APP_URL);
                 inventory = await res.json();
                 localStorage.setItem('inventory_cache', JSON.stringify(inventory));
@@ -98,7 +82,7 @@
             }
 
             filtered.forEach(item => {
-                const internalCodeVal = item['CODIGO INTERNO'] || item['CODIGO_INTERNO'] || 'N/A';
+                const internalCodeVal = item['CODIGO_INTERNO'] || item['CODIGO INTERNO'] || 'N/A';
                 resultsDiv.innerHTML += `
                     <div class="border p-3 sm:p-4 rounded-lg flex flex-col justify-between bg-gray-50 shadow-sm">
                         <div class="h-40 sm:h-48 bg-gray-200 mb-3 flex items-center justify-center overflow-hidden rounded">
