@@ -53,6 +53,7 @@
                         <th class="px-3 py-2 font-semibold">Descripción</th>
                         <th class="px-3 py-2 font-semibold text-right">Precio Final</th>
                         <th class="px-3 py-2 font-semibold text-right">Precio s/IVA</th>
+                        <th class="px-3 py-2 font-semibold text-right">STOCK</th>
                     </tr>
                 </thead>
                 <tbody id="results">
@@ -139,7 +140,7 @@
             status.innerText = `Resultados encontrados: ${filtered.length}`;
 
             if (filtered.length === 0) {
-                resultsBody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-500">No se encontraron productos.</td></tr>`;
+                resultsBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">No se encontraron productos.</td></tr>`;
                 return;
             }
 
@@ -148,6 +149,7 @@
                 const foto = item.FOTO_URL || '';
                 const precioFinal = item['PRECIO FINAL'] != null && item['PRECIO FINAL'] !== '' ? Number(item['PRECIO FINAL']).toFixed(2) : '0.00';
                 const precioSinIva = item['PRECIO SIN IVA'] != null && item['PRECIO SIN IVA'] !== '' ? Number(item['PRECIO SIN IVA']).toFixed(2) : '0.00';
+                const stock = (item['EXISTENCIA REAL'] != null && item['EXISTENCIA REAL'] !== '') ? item['EXISTENCIA REAL'] : 'N/A';
 
                 const tr = document.createElement('tr');
                 tr.className = 'product-row border-b border-gray-100 cursor-pointer transition-colors';
@@ -157,6 +159,9 @@
                     <td class="px-3 py-2.5 text-gray-800">${item.DESCRIPCION || 'Sin descripción'}</td>
                     <td class="px-3 py-2.5 text-right font-bold text-red-600 whitespace-nowrap">$${precioFinal}</td>
                     <td class="px-3 py-2.5 text-right text-gray-600 whitespace-nowrap">$${precioSinIva}</td>
+                    <td class="px-3 py-2.5 text-right whitespace-nowrap">
+                        <span class="inline-block bg-gray-200 text-gray-800 px-2 py-0.5 rounded text-xs font-semibold">STOCK: ${stock}</span>
+                    </td>
                 `;
 
                 tr.addEventListener('mousemove', (ev) => showPhoto(ev, foto, internalCode));
